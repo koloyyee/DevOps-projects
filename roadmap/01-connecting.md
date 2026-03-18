@@ -131,11 +131,7 @@ sudo systemctl enable fail2ban
 
 ### Test fail2ban
 
-To test Fail2Ban, you need to "attack" your own server. However, since you added your IP to the `ignoreip` list, Fail2Ban is currently ignoring your "attacks."
-
-To do a real test, you have to temporarily "un-whitelist" yourself, get banned, and then unban yourself. **Follow these steps carefully** so you don't lock yourself out!
-
-### Step 1: Temporarily Remove your Whitelist
+### Temporarily Remove your Whitelist
 
 Open your config file on the Debian server:
 `sudo nano /etc/fail2ban/jail.local`
@@ -144,42 +140,26 @@ Find the `ignoreip` line and **put a `#` at the start of it** to comment it out.
 Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`), then reload:
 `sudo fail2ban-client reload`
 
----
-
-### Step 2: The "Attack" (From your Mac)
-
-Open a **new** terminal tab on your Mac. Try to SSH into your server using a **fake username** several times. This forces a failure.
+### The "Attack" (From your Mac)
 
 Run this 3 or 4 times (or whatever your `maxretry` count is):
 `ssh non-existent-user@<ip_address>`
 
-On the last attempt, the terminal should hang or say `Connection refused`. **Congratulations, you are now in "prison."**
+On the last attempt, the terminal should hang or say `Connection refused`.
 
----
-
-### Step 3: Verify the Ban (On the Server)
-
-Go back to your **original, still-open SSH session** on the Debian server (this is why we kept it open!) and check the status:
+### Verify the Ban (On the Server)
 
 `sudo fail2ban-client status sshd`
 
-You should see `1` under "Currently banned" and your Mac's Tailscale IP listed at the bottom.
+You should see `1`
 
----
-
-### Step 4: The Jailbreak (Unban Yourself)
-
-Don't wait for the timer to expire. Run this command on the server to let yourself back in:
+### The Jailbreak (Unban Yourself)
 
 ```bash
 sudo fail2ban-client set sshd unbanip <ip_address>
 ```
 
----
-
-### Step 5: Restore your Safety Net
-
-Don't forget to put your whitelist back so you don't accidentally ban yourself while working later!
+### Restore your Safety Net
 
 1. `sudo nano /etc/fail2ban/jail.local`
 2. Remove the `#` from the `ignoreip` line.
